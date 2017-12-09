@@ -1,25 +1,31 @@
-# coding:utf-8
-
 import time
 import re
 import os
 import requests
 from slackclient import SlackClient
+from PIL import Image
+
+from emoji_uploader import EmojiUploader
 
 
 class SlackBotMain:
 
+    workspace = os.environ["WORKSPACE"]
+    email = os.environ["EMAIL"]
+    password = os.environ["PASSWORD"]
     token = os.environ["SLACK_API_TOKEN"]
+    channel = "team7-playground"
     sc = SlackClient(token)
 
     def __init__(self):
         if SlackBotMain.sc.rtm_connect():
+            self.uploader = EmojiUploader(self.workspace, self.email, self.password)
             while True:
                 data = SlackBotMain.sc.rtm_read()
 
                 if len(data) > 0:
                     for item in data:
-                        SlackBotMain.sc.rtm_send_message("team7-playground", self.create_message(item))
+                        SlackBotMain.sc.rtm_send_message(self.channel, self.create_message(item))
 
                 time.sleep(1)
         else:
@@ -28,22 +34,35 @@ class SlackBotMain:
     def create_message(self, data):
         if "type" in data.keys():
             if data["type"] == "message":
-                self.img(data)
-                return "<@" + data["user"] + "> " + u"test:wink:"
+                if 'file' in data:
+                    url = data['file']['url_private']
+                    filename = data['file']['title']
+                    token = self.token
+                    image = requests.get(url, headers={'Authorization': 'Bearer %s' % token}, stream=True)
 
-    def img(self, data):
-        if 'file' in data:
-            url = data['file']['url_private']
-            title, _ = os.path.splitext(data['file']['title'])
-            flag = data['file']['filetype']
+                    if os.path.exists(filename + ".loc"):
+                        return "<@" + data["user"] + "> " + u"Error: exists .loc file: wait a time or rename upload file"
 
-            token = self.token
-            image = requests.get(url, headers={'Authorization': 'Bearer %s' % token}, stream=True)
+                    with open(filename, 'wb') as myfile:
+                        for chunk in image.iter_content(chunk_size=1024):
+                            myfile.write(chunk)
+                    return self.resize_picture(filename)
 
-            with open(title + "." + flag, 'wb') as myfile:
-                for chunk in image.iter_content(chunk_size=1024):
-                    myfile.write(chunk)
-            print("store!")
+    def resize_picture(self, filename):
+        img = Image.open(filename, 'r')
+        with open(filename + ".loc", 'w') as myfile:
+            myfile.write("")
+        resize_img = img.resize((64, 64))
+        resize_img.save(filename, 'png', quality=100, optimize=True)
+
+        # upload
+        title, _ = os.path.splitext(filename)
+        self.uploader.upload(title, filename)
+
+        os.remove(filename + ".loc")
+
+        return ":" + title + ":" + "Uploaded!"
 
 
-sbm = SlackBotMain()
+if __name__ == '__main__':
+    sbm = SlackBotMain()
