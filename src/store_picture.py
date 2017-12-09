@@ -35,9 +35,14 @@ class SlackBotMain:
 
                 text = data['text']
                 channel = data['channel']
-                if text.startswith('<@{}>'.format(self.bot_id)):
-                    # botへのメンション
-                    pass
+                at_str = '<@{}> '.format(self.bot_id)
+
+                if text.startswith(at_str):
+                    if text.startswith(at_str + 'search '):
+                        pass
+                    if text.startswith(at_str + 'url '):
+                        pass
+
                 else:
                     self.sc.rtm_send_message(
                         channel, self.create_message(data))
