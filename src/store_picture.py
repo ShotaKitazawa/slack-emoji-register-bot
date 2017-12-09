@@ -1,5 +1,6 @@
 import time
 import os
+import zipfile
 import requests
 import imghdr
 from bs4 import BeautifulSoup
@@ -7,6 +8,28 @@ from slackclient import SlackClient
 from PIL import Image
 
 from .emoji_uploader import EmojiUploader
+
+
+def is_image_file(filename):
+    return filename.startswith(('png', 'jpeg', 'jpg', 'gif'))
+
+
+def extractall_zip(filename):
+    ret = []
+    dir_name = os.path.splitext(filename)[0]
+    dir_name = os.path.join('/tmp', dir_name)
+
+    with zipfile.ZipFile(filename) as zf:
+        zf.extractall('/tmp')
+    for fname in os.listdir(dir_name):
+        fname = os.path.join(dir_name, fname)
+        if fname.startswith('__MACOSX'):
+            continue
+        if not is_image_file(fname):
+            continue
+        ret.append(fname)
+
+    return ret
 
 
 class SlackBotMain:
@@ -47,7 +70,8 @@ class SlackBotMain:
                         if len(text.split()) < 3:
                             self.sc.rtm_send_message(channel, 'url を指定してください')
                             continue
-                        msg = self.download_img_and_upload_emoji(text.split()[2])
+                        msg = self.download_img_and_upload_emoji(
+                            text.split()[2])
                         self.sc.rtm_send_message(channel, msg)
                     if text.startswith(at_str + 'url'):
                         if len(text.split()) < 3:
@@ -59,8 +83,8 @@ class SlackBotMain:
                             filename = text.split()[3]
                         else:
                             filename = os.path.basename(url)
-                        msg = self.create_message(
-                            url, filename, user)
+                        self.download(url, filename, user)
+                        msg = self.create_message(filename)
                         self.sc.rtm_send_message(channel, msg)
 
                 else:
@@ -68,13 +92,19 @@ class SlackBotMain:
                         url = data['file']['url_private']
                         filename = data['file']['title']
                         headers = {'Authorization': 'Bearer %s' % self.token}
-                        msg = self.create_message(
-                            url, filename, user, headers=headers)
-                        self.sc.rtm_send_message(channel, msg)
+                        self.download(url, filename, user, headers=headers)
+                        if filename.endswith('.zip'):
+                            fnames = extractall_zip(filename)
+                            for fname in fnames:
+                                msg = self.create_message(fname)
+                                self.sc.rtm_send_message(channel, msg)
+                        else:
+                            msg = self.create_message(filename)
+                            self.sc.rtm_send_message(channel, msg)
 
             time.sleep(1)
 
-    def create_message(self, url, filename, user, headers={}):
+    def download(self, url, filename, user, headers={}):
         image = requests.get(
             url, headers=headers,
             stream=True)
@@ -86,6 +116,10 @@ class SlackBotMain:
         with open(filename, 'wb') as myfile:
             for chunk in image.iter_content(chunk_size=1024):
                 myfile.write(chunk)
+
+        return filename
+
+    def create_message(self, filename):
         return self.resize_picture(filename)
 
     def resize_picture(self, filename):
