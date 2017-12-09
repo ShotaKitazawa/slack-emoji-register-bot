@@ -41,7 +41,7 @@ class SlackBotMain:
                     image = requests.get(url, headers={'Authorization': 'Bearer %s' % token}, stream=True)
 
                     if os.path.exists(filename):
-                        return "<@" + data["user"] + "> " + u"Error: exists .loc file: wait a time or rename upload file"
+                        return "<@" + data["user"] + "> " + u"Error: exists file: wait a time or rename upload file"
 
                     with open(filename, 'wb') as myfile:
                         for chunk in image.iter_content(chunk_size=1024):
@@ -50,11 +50,11 @@ class SlackBotMain:
 
     def resize_picture(self, filename):
         img = Image.open(filename, 'r')
-        resize_img = img.resize((64, 64)j
+        resize_img = img.resize((64, 64))
         resize_img.save(filename, 'png', quality=100, optimize=True)
 
         # upload
-        title, _=os.path.splitext(filename)
+        title, _ = os.path.splitext(filename)
         self.uploader.upload(title, filename)
 
         os.remove(filename)
@@ -63,4 +63,4 @@ class SlackBotMain:
 
 
 if __name__ == '__main__':
-    sbm=SlackBotMain()
+    sbm = SlackBotMain()
