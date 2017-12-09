@@ -114,8 +114,6 @@ class SlackBotMain:
                             msg = self.create_message(filename)
                             self.sc.rtm_send_message(channel, msg)
 
-            time.sleep(1)
-
     def download(self, url, filename, user, headers={}):
         image = requests.get(
             url, headers=headers,
