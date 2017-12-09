@@ -63,7 +63,8 @@ class SlackBotMain:
                     continue
                 if data['type'] != 'message':
                     continue
-
+                if not 'text' in data:
+                    continue
                 text = data['text'].strip()
                 channel = data['channel']
                 user = data['user']
