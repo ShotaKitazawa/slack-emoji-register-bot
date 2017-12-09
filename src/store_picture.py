@@ -1,14 +1,40 @@
 import time
 import os
 import re
+import zipfile
 import requests
 import urllib.parse
 import imghdr
+from logzero import logger
 from bs4 import BeautifulSoup
 from slackclient import SlackClient
 from PIL import Image
 
 from .emoji_uploader import EmojiUploader
+
+
+def is_image_file(filename):
+    return filename.endswith(('png', 'jpeg', 'jpg', 'gif'))
+
+
+def extractall_zip(filename):
+    ret = []
+    dir_name = os.path.splitext(filename)[0]
+    dir_name = os.path.join('/tmp', dir_name)
+
+    with zipfile.ZipFile(filename) as zf:
+        zf.extractall('/tmp')
+
+    for fname in os.listdir(dir_name):
+        fname = os.path.join(dir_name, fname)
+        if fname.startswith('__MACOSX'):
+            continue
+        if not is_image_file(fname):
+            continue
+        logger.info('ok fname = {}'.format(fname))
+        ret.append(fname)
+
+    return ret
 
 
 class SlackBotMain:
@@ -27,7 +53,7 @@ class SlackBotMain:
 
     def run(self):
         if not self.sc.rtm_connect():
-            print("Connection Failed, invalid token?")
+            logger.info("Connection Failed, invalid token?")
             exit(1)
 
         while True:
@@ -66,8 +92,8 @@ class SlackBotMain:
                             filename = text.split()[3]
                         else:
                             filename = os.path.basename(url)
-                        msg = self.create_message(
-                            url, filename, user)
+                        self.download(url, filename, user)
+                        msg = self.create_message(filename)
                         self.sc.rtm_send_message(channel, msg)
 
                 else:
@@ -75,13 +101,22 @@ class SlackBotMain:
                         url = data['file']['url_private']
                         filename = data['file']['title']
                         headers = {'Authorization': 'Bearer %s' % self.token}
-                        msg = self.create_message(
-                            url, filename, user, headers=headers)
-                        self.sc.rtm_send_message(channel, msg)
+
+                        logger.info('receive filename = {}'.format(filename))
+
+                        self.download(url, filename, user, headers=headers)
+                        if filename.endswith('.zip'):
+                            fnames = extractall_zip(filename)
+                            for fname in fnames:
+                                msg = self.create_message(fname)
+                                self.sc.rtm_send_message(channel, msg)
+                        elif is_image_file(filename):
+                            msg = self.create_message(filename)
+                            self.sc.rtm_send_message(channel, msg)
 
             time.sleep(1)
 
-    def create_message(self, url, filename, user, headers={}):
+    def download(self, url, filename, user, headers={}):
         image = requests.get(
             url, headers=headers,
             stream=True)
@@ -93,6 +128,11 @@ class SlackBotMain:
         with open(filename, 'wb') as myfile:
             for chunk in image.iter_content(chunk_size=1024):
                 myfile.write(chunk)
+
+        return filename
+
+    def create_message(self, filename):
+        logger.info('uploading {}'.format(filename))
         return self.resize_picture(filename)
 
     def resize_picture(self, filename):
@@ -104,7 +144,7 @@ class SlackBotMain:
         resize_img.save(filename, 'png', quality=100, optimize=True)
 
         # upload
-        title, _ = os.path.splitext(filename)
+        title, _ = os.path.splitext(os.path.basename(filename))
         try:
             self.uploader.upload(title, filename)
         except ValueError as e:
