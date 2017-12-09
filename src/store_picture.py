@@ -17,6 +17,7 @@ class SlackBotMain:
         self.sc = SlackClient(self.token)
         self.uploader = EmojiUploader(
             self.workspace, self.email, self.password)
+        self.bot_id = self.sc.api_call('auth.test')['user_id']
 
     def run(self):
         if not self.sc.rtm_connect():
@@ -31,9 +32,15 @@ class SlackBotMain:
                     continue
                 if data['type'] != 'message':
                     continue
+
+                text = data['text']
                 channel = data['channel']
-                self.sc.rtm_send_message(
-                    channel, self.create_message(data))
+                if text.startswith('<@{}>'.format(self.bot_id)):
+                    # botへのメンション
+                    pass
+                else:
+                    self.sc.rtm_send_message(
+                        channel, self.create_message(data))
 
             time.sleep(1)
 
