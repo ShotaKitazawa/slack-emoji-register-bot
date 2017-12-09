@@ -1,4 +1,4 @@
-from src import SlackBotMain
+from src.store_picture import SlackBotMain
 
 
 def main():

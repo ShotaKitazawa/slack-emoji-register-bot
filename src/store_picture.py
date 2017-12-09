@@ -5,7 +5,7 @@ import requests
 from slackclient import SlackClient
 from PIL import Image
 
-from emoji_uploader import EmojiUploader
+from .emoji_uploader import EmojiUploader
 
 
 class SlackBotMain:
