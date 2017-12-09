@@ -2,3 +2,4 @@ slackclient
 Pillow
 beautifulsoup4
 robobrowser
+html5lib

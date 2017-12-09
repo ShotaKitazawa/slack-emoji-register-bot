@@ -112,7 +112,7 @@ class SlackBotMain:
         if response.status_code == 404:
             return 'Error: URL page notfound.'
         html = response.text.encode("utf-8", "ignore")
-        soup = BeautifulSoup(html, "lxml")
+        soup = BeautifulSoup(html, "html.parser")
         content = soup.find("div", {"id": "contents"})
         image_url = content.find("img")["src"]
         image = requests.get(image_url)
