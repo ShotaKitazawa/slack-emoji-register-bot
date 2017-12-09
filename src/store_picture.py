@@ -63,11 +63,14 @@ class SlackBotMain:
 
         # upload
         title, _ = os.path.splitext(filename)
-        self.uploader.upload(title, filename)
+        try:
+            self.uploader.upload(title, filename)
+        except ValueError as e:
+            return str(e)
+        finally:
+            os.remove(filename)
 
-        os.remove(filename)
-
-        return ":" + title + ":" + "Uploaded!"
+        return ':{}: を登録しました!'.format(title)
 
 
 if __name__ == '__main__':
