@@ -1,13 +1,5 @@
-import os
-
 from bs4 import BeautifulSoup
 from robobrowser import RoboBrowser
-
-slack_token = os.environ['SLACK_API_TOKEN']
-email = os.environ['EMAIL']
-password = os.environ['PASSWORD']
-workspace = os.environ['WORKSPACE']
-url = 'https://{}.slack.com/admin/emoji'.format(workspace)
 
 
 def upload_emoji(session, emoji_name, filename):
@@ -36,7 +28,9 @@ def upload_emoji(session, emoji_name, filename):
 
 
 class EmojiUploader(object):
-    def __init__(self):
+    def __init__(self, workspac, email, password):
+        url = 'https://{}.slack.com/admin/emoji'.format(workspace)
+
         browser = RoboBrowser(parser='html.parser', history=True)
         browser.open(url)
         form = browser.get_form(action='/')
