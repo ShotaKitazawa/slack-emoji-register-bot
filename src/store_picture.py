@@ -33,21 +33,32 @@ class SlackBotMain:
                 if data['type'] != 'message':
                     continue
 
-                text = data['text']
+                text = data['text'].strip()
                 channel = data['channel']
+                user = data['user']
                 at_str = '<@{}> '.format(self.bot_id)
 
                 if text.startswith(at_str):
                     if text.startswith(at_str + 'search '):
                         pass
-                    if text.startswith(at_str + 'url '):
-                        pass
+                    if text.startswith(at_str + 'url'):
+                        if len(text.split()) < 3:
+                            self.sc.rtm_send_message(channel, 'url を指定してください')
+                            continue
+                        url = text.split()[2]
+                        url = url[1:-1]
+                        if len(text.split()) == 4:
+                            filename = text.split()[3]
+                        else:
+                            filename = os.path.basename(url)
+                        msg = self.create_message(
+                            url, filename, user)
+                        self.sc.rtm_send_message(channel, msg)
 
                 else:
                     if 'file' in data:
                         url = data['file']['url_private']
                         filename = data['file']['title']
-                        user = data['user']
                         headers = {'Authorization': 'Bearer %s' % self.token}
                         msg = self.create_message(
                             url, filename, user, headers=headers)
