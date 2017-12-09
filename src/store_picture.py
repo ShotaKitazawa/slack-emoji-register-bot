@@ -104,7 +104,7 @@ class SlackBotMain:
                             for fname in fnames:
                                 msg = self.create_message(fname)
                                 self.sc.rtm_send_message(channel, msg)
-                        else:
+                        elif is_image_file(filename):
                             msg = self.create_message(filename)
                             self.sc.rtm_send_message(channel, msg)
 
