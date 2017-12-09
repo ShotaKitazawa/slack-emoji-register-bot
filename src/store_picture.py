@@ -158,8 +158,8 @@ class SlackBotMain:
         regex = r'[^\x00-\x7F]'
         matchedList = re.findall(regex, title)
         for m in matchedList:
-            title = title.replace(m, urllib.parse.quote_plus(m, encoding="utf-8"))
-            print(title)
+            title_reg = title.replace(m, urllib.parse.quote_plus(m, encoding="utf-8"))
+            # TODO: uploadnameが日本語の場合失敗する
         response = requests.get(self.url.format(title))
         if response.status_code == 404:
             return "Error: URL page notfound."
