@@ -1,6 +1,8 @@
 import time
 import os
+import re
 import requests
+import urllib.parse
 import imghdr
 from bs4 import BeautifulSoup
 from slackclient import SlackClient
@@ -47,7 +49,12 @@ class SlackBotMain:
                         if len(text.split()) < 3:
                             self.sc.rtm_send_message(channel, 'url を指定してください')
                             continue
-                        msg = self.download_img_and_upload_emoji(text.split()[2])
+                        searchname = text.split()[2]
+                        if len(text.split()) == 4:
+                            filename = text.split()[3]
+                        else:
+                            filename = searchname
+                        msg = self.download_img_and_upload_emoji(searchname, filename)
                         self.sc.rtm_send_message(channel, msg)
                     if text.startswith(at_str + 'url'):
                         if len(text.split()) < 3:
@@ -107,24 +114,30 @@ class SlackBotMain:
 
         return ':{}: を登録しました!'.format(title)
 
-    def download_img_and_upload_emoji(self, title):
+    def download_img_and_upload_emoji(self, title, uploadname):
+        regex = r'[^\x00-\x7F]'
+        matchedList = re.findall(regex, title)
+        for m in matchedList:
+            title = title.replace(m, urllib.parse.quote_plus(m, encoding="utf-8"))
+            print(title)
         response = requests.get(self.url.format(title))
         if response.status_code == 404:
-            return 'Error: URL page notfound.'
+            return "Error: URL page notfound."
         html = response.text.encode("utf-8", "ignore")
         soup = BeautifulSoup(html, "html.parser")
         content = soup.find("div", {"id": "contents"})
+        if content.find("img") == None:
+            return "検索結果が見つかりません。"
         image_url = content.find("img")["src"]
         image = requests.get(image_url)
         with open("tmp", 'wb') as myfile:
             for chunk in image.iter_content(chunk_size=1024):
                 myfile.write(chunk)
 
-        # title ファイルの形式判別
         extend = imghdr.what("tmp")
-        os.rename("tmp", title + "." + extend)
+        os.rename("tmp", uploadname + "." + extend)
 
-        return self.resize_picture(title + "." + extend)
+        return self.resize_picture(uploadname + "." + extend)
 
 
 if __name__ == '__main__':
