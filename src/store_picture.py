@@ -1,13 +1,18 @@
 import time
 import os
 import requests
+import imghdr
+from bs4 import BeautifulSoup
 from slackclient import SlackClient
 from PIL import Image
 
-from .emoji_uploader import EmojiUploader
+#from .emoji_uploader import EmojiUploader
+from emoji_uploader import EmojiUploader
 
 
 class SlackBotMain:
+    url = "https://search.yahoo.co.jp/image/search?p={}&ei=UTF-8"
+    count = 3
 
     def __init__(self):
         self.workspace = os.environ["WORKSPACE"]
@@ -40,7 +45,11 @@ class SlackBotMain:
 
                 if text.startswith(at_str):
                     if text.startswith(at_str + 'search '):
-                        pass
+                        if len(text.split()) < 3:
+                            self.sc.rtm_send_message(channel, 'url を指定してください')
+                            continue
+                        msg = self.download_img_and_upload_emoji(text.split()[2])
+                        self.sc.rtm_send_message(channel, msg)
                     if text.startswith(at_str + 'url'):
                         if len(text.split()) < 3:
                             self.sc.rtm_send_message(channel, 'url を指定してください')
@@ -95,6 +104,25 @@ class SlackBotMain:
             os.remove(filename)
 
         return ':{}: を登録しました!'.format(title)
+
+    def download_img_and_upload_emoji(self, title):
+        response = requests.get(self.url.format(title))
+        if response.status_code == 404:
+            return 'Error: URL page notfound.'
+        html = response.text.encode("utf-8", "ignore")
+        soup = BeautifulSoup(html, "lxml")
+        content = soup.find("div", {"id": "contents"})
+        image_url = content.find("img")["src"]
+        image = requests.get(image_url)
+        with open("tmp", 'wb') as myfile:
+            for chunk in image.iter_content(chunk_size=1024):
+                myfile.write(chunk)
+
+        # title ファイルの形式判別
+        extend = imghdr.what("tmp")
+        os.rename("tmp", title + "." + extend)
+
+        return self.resize_picture(title + "." + extend)
 
 
 if __name__ == '__main__':
