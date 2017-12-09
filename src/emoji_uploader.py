@@ -24,7 +24,8 @@ def upload_emoji(session, emoji_name, filename):
     if b'alert_error' in r.content:
         soup = BeautifulSoup(r.text, "html.parser")
         crumb = soup.find("p", attrs={"class": "alert_error"})
-        print("Error with uploading %s: %s" % (emoji_name, crumb.text))
+        raise ValueError("Error with uploading %s: %s"
+                         % (emoji_name, crumb.text))
 
 
 class EmojiUploader(object):
