@@ -150,7 +150,7 @@ class SlackBotMain:
         finally:
             os.remove(filename)
 
-        return ':{}: を登録しました!'.format(title)
+        return ':{}: を登録したよ！'.format(title)
 
     def download_img_and_upload_emoji(self, title, uploadname):
         regex = r'[^\x00-\x7F]'
