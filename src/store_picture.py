@@ -44,29 +44,30 @@ class SlackBotMain:
                         pass
 
                 else:
-                    self.sc.rtm_send_message(
-                        channel, self.create_message(data))
+                    if 'file' in data:
+                        url = data['file']['url_private']
+                        filename = data['file']['title']
+                        user = data['user']
+                        headers = {'Authorization': 'Bearer %s' % self.token}
+                        msg = self.create_message(
+                            url, filename, user, headers=headers)
+                        self.sc.rtm_send_message(channel, msg)
 
             time.sleep(1)
 
-    def create_message(self, data):
-        if 'file' in data:
-            url = data['file']['url_private']
-            filename = data['file']['title']
-            token = self.token
-            image = requests.get(
-                url, headers={'Authorization': 'Bearer %s' % token},
-                stream=True)
+    def create_message(self, url, filename, user, headers={}):
+        image = requests.get(
+            url, headers=headers,
+            stream=True)
 
-            if os.path.exists(filename):
-                return ("<@{}> Error: exists file: "
-                        "wait a time or rename upload file").format(
-                    data['user'])
+        if os.path.exists(filename):
+            return ("<@{}> Error: exists file: "
+                    "wait a time or rename upload file").format(user)
 
-            with open(filename, 'wb') as myfile:
-                for chunk in image.iter_content(chunk_size=1024):
-                    myfile.write(chunk)
-            return self.resize_picture(filename)
+        with open(filename, 'wb') as myfile:
+            for chunk in image.iter_content(chunk_size=1024):
+                myfile.write(chunk)
+        return self.resize_picture(filename)
 
     def resize_picture(self, filename):
         img = Image.open(filename, 'r')
