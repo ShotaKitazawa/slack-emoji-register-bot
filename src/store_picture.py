@@ -82,7 +82,10 @@ class SlackBotMain:
 
     def resize_picture(self, filename):
         img = Image.open(filename, 'r')
-        resize_img = img.resize((64, 64))
+        # resize_img = img.resize((64, 64))
+        # 縦横の比率を維持したままresize
+        img.thumbnail((64, 64), Image.LANCZOS)
+        resize_img = img
         resize_img.save(filename, 'png', quality=100, optimize=True)
 
         # upload
