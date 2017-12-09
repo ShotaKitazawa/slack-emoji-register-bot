@@ -9,25 +9,28 @@ from .emoji_uploader import EmojiUploader
 
 class SlackBotMain:
 
-    workspace = os.environ["WORKSPACE"]
-    email = os.environ["EMAIL"]
-    password = os.environ["PASSWORD"]
-    token = os.environ["SLACK_API_TOKEN"]
-    sc = SlackClient(token)
-
     def __init__(self):
-        if SlackBotMain.sc.rtm_connect():
-            self.uploader = EmojiUploader(
-                self.workspace, self.email, self.password)
+        self.workspace = os.environ["WORKSPACE"]
+        self.email = os.environ["EMAIL"]
+        self.password = os.environ["PASSWORD"]
+        self.token = os.environ["SLACK_API_TOKEN"]
+        self.sc = SlackClient(self.token)
+        self.uploader = EmojiUploader(
+            self.workspace, self.email, self.password)
+
+    def run(self):
+        if self.sc.rtm_connect():
             while True:
-                data_list = SlackBotMain.sc.rtm_read()
+                data_list = self.sc.rtm_read()
 
                 for data in data_list:
-                    if "type" in data and data["type"] == "message":
-                        channel = data['channel']
-                        print(channel)
-                        SlackBotMain.sc.rtm_send_message(
-                            channel, self.create_message(data))
+                    if 'type' not in data:
+                        continue
+                    if data['type'] != 'message':
+                        continue
+                    channel = data['channel']
+                    self.sc.rtm_send_message(
+                        channel, self.create_message(data))
 
                 time.sleep(1)
         else:
