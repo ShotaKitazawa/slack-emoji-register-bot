@@ -46,4 +46,9 @@ class EmojiUploader(object):
 
 
 if __name__ == '__main__':
-    pass
+    import os
+    email = os.environ['EMAIL']
+    password = os.environ['PASSWORD']
+    workspace = os.environ['WORKSPACE']
+    uploader = EmojiUploader(workspace, email, password)
+    uploader.upload('aaatest', './tetris_purple.png')
