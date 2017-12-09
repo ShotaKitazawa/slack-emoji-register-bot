@@ -1,2 +1,4 @@
 slackclient
 Pillow
+beautifulsoup4
+robobrowser
