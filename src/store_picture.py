@@ -3,6 +3,7 @@ import os
 import zipfile
 import requests
 import imghdr
+from logzero import logger
 from bs4 import BeautifulSoup
 from slackclient import SlackClient
 from PIL import Image
@@ -11,7 +12,7 @@ from .emoji_uploader import EmojiUploader
 
 
 def is_image_file(filename):
-    return filename.startswith(('png', 'jpeg', 'jpg', 'gif'))
+    return filename.endswith(('png', 'jpeg', 'jpg', 'gif'))
 
 
 def extractall_zip(filename):
@@ -21,12 +22,14 @@ def extractall_zip(filename):
 
     with zipfile.ZipFile(filename) as zf:
         zf.extractall('/tmp')
+
     for fname in os.listdir(dir_name):
         fname = os.path.join(dir_name, fname)
         if fname.startswith('__MACOSX'):
             continue
         if not is_image_file(fname):
             continue
+        logger.info('ok fname = {}'.format(fname))
         ret.append(fname)
 
     return ret
@@ -48,7 +51,7 @@ class SlackBotMain:
 
     def run(self):
         if not self.sc.rtm_connect():
-            print("Connection Failed, invalid token?")
+            logger.info("Connection Failed, invalid token?")
             exit(1)
 
         while True:
@@ -92,6 +95,9 @@ class SlackBotMain:
                         url = data['file']['url_private']
                         filename = data['file']['title']
                         headers = {'Authorization': 'Bearer %s' % self.token}
+
+                        logger.info('receive filename = {}'.format(filename))
+
                         self.download(url, filename, user, headers=headers)
                         if filename.endswith('.zip'):
                             fnames = extractall_zip(filename)
@@ -120,6 +126,7 @@ class SlackBotMain:
         return filename
 
     def create_message(self, filename):
+        logger.info('uploading {}'.format(filename))
         return self.resize_picture(filename)
 
     def resize_picture(self, filename):
@@ -131,7 +138,7 @@ class SlackBotMain:
         resize_img.save(filename, 'png', quality=100, optimize=True)
 
         # upload
-        title, _ = os.path.splitext(filename)
+        title, _ = os.path.splitext(os.path.basename(filename))
         try:
             self.uploader.upload(title, filename)
         except ValueError as e:
