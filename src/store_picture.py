@@ -1,5 +1,4 @@
 import time
-import re
 import os
 import requests
 from slackclient import SlackClient
@@ -40,10 +39,13 @@ class SlackBotMain:
             filename = data['file']['title']
             token = self.token
             image = requests.get(
-                url, headers={'Authorization': 'Bearer %s' % token}, stream=True)
+                url, headers={'Authorization': 'Bearer %s' % token},
+                stream=True)
 
             if os.path.exists(filename):
-                return "<@" + data["user"] + "> " + u"Error: exists file: wait a time or rename upload file"
+                return ("<@{}> Error: exists file: "
+                        "wait a time or rename upload file").format(
+                    data['user'])
 
             with open(filename, 'wb') as myfile:
                 for chunk in image.iter_content(chunk_size=1024):
