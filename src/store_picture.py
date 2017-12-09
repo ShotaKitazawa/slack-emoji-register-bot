@@ -19,22 +19,23 @@ class SlackBotMain:
             self.workspace, self.email, self.password)
 
     def run(self):
-        if self.sc.rtm_connect():
-            while True:
-                data_list = self.sc.rtm_read()
-
-                for data in data_list:
-                    if 'type' not in data:
-                        continue
-                    if data['type'] != 'message':
-                        continue
-                    channel = data['channel']
-                    self.sc.rtm_send_message(
-                        channel, self.create_message(data))
-
-                time.sleep(1)
-        else:
+        if not self.sc.rtm_connect():
             print("Connection Failed, invalid token?")
+            exit(1)
+
+        while True:
+            data_list = self.sc.rtm_read()
+
+            for data in data_list:
+                if 'type' not in data:
+                    continue
+                if data['type'] != 'message':
+                    continue
+                channel = data['channel']
+                self.sc.rtm_send_message(
+                    channel, self.create_message(data))
+
+            time.sleep(1)
 
     def create_message(self, data):
         if 'file' in data:
