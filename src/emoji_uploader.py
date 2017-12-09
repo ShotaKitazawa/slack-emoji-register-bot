@@ -28,7 +28,7 @@ def upload_emoji(session, emoji_name, filename):
 
 
 class EmojiUploader(object):
-    def __init__(self, workspac, email, password):
+    def __init__(self, workspace, email, password):
         url = 'https://{}.slack.com/admin/emoji'.format(workspace)
 
         browser = RoboBrowser(parser='html.parser', history=True)
