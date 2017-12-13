@@ -38,8 +38,7 @@ def extractall_zip(filename):
 
 
 class SlackBotMain:
-    url = "https://search.yahoo.co.jp/image/search?p={}&ei=UTF-8"
-    count = 3
+    URL = "https://search.yahoo.co.jp/image/search?p={}&ei=UTF-8"
 
     def __init__(self):
         self.workspace = os.environ["WORKSPACE"]
@@ -64,7 +63,8 @@ class SlackBotMain:
                     continue
                 if data['type'] != 'message':
                     continue
-
+                if not 'text' in data:
+                    continue
                 text = data['text'].strip()
                 channel = data['channel']
                 user = data['user']
@@ -80,7 +80,7 @@ class SlackBotMain:
                             filename = text.split()[3]
                         else:
                             filename = searchname
-                        msg = self.download_img_and_upload_emoji(searchname, filename)
+                        msg = self.search_picture(searchname, filename)
                         self.sc.rtm_send_message(channel, msg)
                     if text.startswith(at_str + 'url'):
                         if len(text.split()) < 3:
@@ -133,6 +133,32 @@ class SlackBotMain:
         logger.info('uploading {}'.format(filename))
         return self.resize_picture(filename)
 
+    def search_picture(self, title, uploadname):
+        regex = r'[^\x00-\x7F]'
+        matchedList = re.findall(regex, title)
+        for m in matchedList:
+            title_reg = title.replace(m, urllib.parse.quote_plus(m, encoding="utf-8"))
+            # TODO: uploadnameが日本語の場合失敗する
+        response = requests.get(self.URL.format(title))
+        if response.status_code == 404:
+            return "Error: URL page notfound."
+        html = response.text.encode("utf-8", "ignore")
+        soup = BeautifulSoup(html, "html.parser")
+        content = soup.find("div", {"id": "contents"})
+        if content.find("img") == None:
+            return "検索結果が見つかりません。"
+        # TODO: 検索結果を self.COUNT 個数だけ取ってきて表示 & Button 選択 (Button 受信用 Web サーバ必須)
+        image_url = content.find("img")["src"]
+        image = requests.get(image_url)
+        with open("tmp", 'wb') as myfile:
+            for chunk in image.iter_content(chunk_size=1024):
+                myfile.write(chunk)
+
+        extend = imghdr.what("tmp")
+        os.rename("tmp", uploadname + "." + extend)
+
+        return self.resize_picture(uploadname + "." + extend)
+
     def resize_picture(self, filename):
         img = Image.open(filename, 'r')
         # resize_img = img.resize((64, 64))
@@ -150,32 +176,7 @@ class SlackBotMain:
         finally:
             os.remove(filename)
 
-        return ':{}: を登録したよ！'.format(title)
-
-    def download_img_and_upload_emoji(self, title, uploadname):
-        regex = r'[^\x00-\x7F]'
-        matchedList = re.findall(regex, title)
-        for m in matchedList:
-            title_reg = title.replace(m, urllib.parse.quote_plus(m, encoding="utf-8"))
-            # TODO: uploadnameが日本語の場合失敗する
-        response = requests.get(self.url.format(title))
-        if response.status_code == 404:
-            return "Error: URL page notfound."
-        html = response.text.encode("utf-8", "ignore")
-        soup = BeautifulSoup(html, "html.parser")
-        content = soup.find("div", {"id": "contents"})
-        if content.find("img") == None:
-            return "検索結果が見つかりません。"
-        image_url = content.find("img")["src"]
-        image = requests.get(image_url)
-        with open("tmp", 'wb') as myfile:
-            for chunk in image.iter_content(chunk_size=1024):
-                myfile.write(chunk)
-
-        extend = imghdr.what("tmp")
-        os.rename("tmp", uploadname + "." + extend)
-
-        return self.resize_picture(uploadname + "." + extend)
+        return ':{}: を登録しました!'.format(title)
 
 
 if __name__ == '__main__':
