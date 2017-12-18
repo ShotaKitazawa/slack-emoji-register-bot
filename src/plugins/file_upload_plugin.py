@@ -48,3 +48,6 @@ class FileUploadPlugin(PluginBase):
 
             self.slack_emoji.upload(emoji_name, path)
             self.send_register_message(channel, emoji_name)
+
+        for _, path in targets:
+            os.remove(path)
