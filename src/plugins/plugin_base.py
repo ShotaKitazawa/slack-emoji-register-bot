@@ -33,8 +33,6 @@ class PluginBase(Plugin):
 
             return True
 
-        from pprint import pprint
-        pprint(data)
         if 'text' in data and match(data['text']):
             self.process_filtered_massage(data)
             return
@@ -49,4 +47,5 @@ class PluginBase(Plugin):
         raise NotImplementedError()
 
     def send_register_message(self, channel, emoji_name):
-        self.outputs.append([channel, ':{}: を登録しました!'.format(emoji_name)])
+        msg = ':{0}: `:{0}:` を登録しました!'.format(emoji_name)
+        self.outputs.append([channel, msg])
