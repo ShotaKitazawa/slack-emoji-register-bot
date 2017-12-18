@@ -19,21 +19,31 @@ class PluginBase(Plugin):
         self.bot_id = self.slack_client.api_call('auth.test')['user_id']
 
     def process_message(self, data):
-        if 'text' not in data:
+        def match(text):
+            at_str = '<@{}>'.format(self.bot_id)
+            if not text.startswith(at_str):
+                return False
+
+            text = text.strip().split()
+            if len(text) < 2:
+                return False
+
+            if text[1] not in self.subcommands:
+                return False
+
+            return True
+
+        from pprint import pprint
+        pprint(data)
+        if 'text' in data and match(data['text']):
+            self.process_filtered_massage(data)
             return
 
-        text = data['text']
-        if not text.startswith('<@{}>'.format(self.bot_id)):
-            return
-
-        text = text.strip().split()
-        if len(text) < 2:
-            return
-
-        if text[1] not in self.subcommands:
-            return
-
-        self.process_filtered_massage(data)
+        if 'file' in data and 'initial_comment' in data['file'] and \
+                'comment' in data['file']['initial_comment']:
+            comment = data['file']['initial_comment']['comment']
+            if match(comment):
+                self.process_filtered_massage(data)
 
     def process_filtered_massage(self, data):
         raise NotImplementedError()
