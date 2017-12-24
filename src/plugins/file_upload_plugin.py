@@ -5,7 +5,7 @@ import zipfile
 
 
 from src.plugins.plugin_base import PluginBase
-from src.download import download
+from src.utils import download
 
 
 class FileUploadPlugin(PluginBase):
