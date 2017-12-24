@@ -5,7 +5,7 @@ import zipfile
 
 
 from src.plugins.plugin_base import PluginBase
-from src.utils import download
+from src.utils import download, resize_image
 
 
 class FileUploadPlugin(PluginBase):
@@ -46,6 +46,7 @@ class FileUploadPlugin(PluginBase):
         for filename, path in targets:
             emoji_name, _ = os.path.splitext(os.path.basename(filename))
 
+            resize_image(path)
             self.slack_emoji.upload(emoji_name, path)
             self.send_register_message(channel, emoji_name)
 
