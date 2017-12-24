@@ -19,4 +19,4 @@ def download(url, headers={}):
 def resize_image(path):
     img = Image.open(path, 'r')
     img.thumbnail((128, 128), Image.LANCZOS)
-    img.save(img, 'png', quality=100, optimize=True)
+    img.save(path, 'png', quality=100, optimize=True)
