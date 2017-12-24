@@ -1,7 +1,5 @@
-import os
-
 from src.plugins.plugin_base import PluginBase
-from src.utils import search_picture, resize_image
+from src.utils import search_picture
 
 
 class SearchPlugin(PluginBase):
