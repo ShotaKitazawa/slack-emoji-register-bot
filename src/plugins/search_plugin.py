@@ -30,11 +30,4 @@ class SearchPlugin(PluginBase):
             self.outputs.append([channel, str(e)])
             return
 
-        resize_image(path)
-        try:
-            self.slack_emoji.upload(emoji_name, path)
-            self.send_register_message(channel, emoji_name)
-        except ValueError as e:
-            self.outputs.append([channel, str(e)])
-        finally:
-            os.remove(path)
+        self.upload_emoji(channel, path, emoji_name)

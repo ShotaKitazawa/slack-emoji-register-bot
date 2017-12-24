@@ -3,6 +3,7 @@ import os
 from rtmbot.core import Plugin
 
 from src.slack_emoji import SlackEmoji
+from src.utils import resize_image
 
 
 class PluginBase(Plugin):
@@ -49,3 +50,13 @@ class PluginBase(Plugin):
     def send_register_message(self, channel, emoji_name):
         msg = ':{0}: `:{0}:` を登録しました!'.format(emoji_name)
         self.outputs.append([channel, msg])
+
+    def upload_emoji(self, channel, path, emoji_name):
+        resize_image(path)
+        try:
+            self.slack_emoji.upload(emoji_name, path)
+            self.send_register_message(channel, emoji_name)
+        except ValueError as e:
+            self.outputs.append([channel, str(e)])
+        finally:
+            os.remove(path)
