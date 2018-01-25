@@ -1,13 +1,11 @@
 FROM python:3
 WORKDIR /usr/src/app
-ADD . .
+ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN cat << _EOF_ > rtmbot.conf
-DEBUG: True
-SLACK_TOKEN: $SLACK_TOKEN
-ACTIVE_PLUGINS:
-    - src.plugins.FileUploadPlugin
-    - src.plugins.URLUploadPlugin
-    - src.plugins.SearchPlugin
-_EOF_
-CMD [ "rtmbot" ]
+RUN mkdir src
+WORKDIR /usr/src/app/src
+ADD src .
+WORKDIR /usr/src/app
+ADD build.sh .
+RUN chmod 755 build.sh
+CMD [ "./build.sh" ]
