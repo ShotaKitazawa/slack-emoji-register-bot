@@ -78,7 +78,7 @@ Slack 上でメンションを送ることで各機能を使用可能です。
     - アップロードされたファイルを :hoge: という名前で emoji に登録します。
         - ファイルアップロード時の [Upload a file?] の画面にて Add Comment に `@bot upload hoge` を入力
         - zip ファイルにも対応
-- @bot url hoge http://example.com/huga.jpg
+- @bot url http://example.com/huga.jpg hoge
     - http://example.com/huga.jpg にある画像データを :hoge: という名前で emoji に登録します。
 - @bot search hoge
     - Yahoo!検索(画像) にて hoge を検索し、検索結果の一番目を :hoge: という名前で emoji に登録します。
