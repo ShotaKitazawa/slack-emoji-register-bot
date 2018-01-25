@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  slack-emoji-bot:
+    image: kanatakita/slack-emoji-bot:latest
+    environment:
+      - WORKSPACE
+      - EMAIL
+      - PASSWORD
+      - SLACK_TOKEN
+    restart: always
