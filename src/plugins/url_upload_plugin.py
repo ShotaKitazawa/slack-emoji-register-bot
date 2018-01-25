@@ -1,5 +1,6 @@
 import os
 import imghdr
+import requests
 
 from src.plugins.plugin_base import PluginBase
 from src.utils import download
@@ -27,7 +28,11 @@ class URLUploadPlugin(PluginBase):
             emoji_name, _ = os.path.splitext(os.path.basename(url))
 
         emoji_name = emoji_name.lower()
-        path = download(url)
+        try:
+            path = download(url)
+        except requests.exceptions.SSLError as e:
+            self.outputs.append([channel, str(e)])
+            return
 
         if imghdr.what(path) is None:
             self.outputs.append([channel, '画像URLを指定してください'])

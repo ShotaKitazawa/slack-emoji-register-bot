@@ -23,7 +23,11 @@ class FileUploadPlugin(PluginBase):
         url = data['file']['url_private']
         filename = data['file']['title']
         headers = {'Authorization': 'Bearer {}'.format(self.token)}
-        path = download(url, headers=headers)
+        try:
+            path = download(url, headers=headers)
+        except requests.exceptions.SSLError as e:
+            self.outputs.append([channel, str(e)])
+            return
 
         targets = []
         if filename.endswith('.zip'):
