@@ -50,7 +50,7 @@ rtmbot
 docker build . -t slack-emoji-bot
 ```
 
-コンテナ上で実行します。
+実行します。
 
 ```
 docker run -e WORKSPACE=hoge -e EMAIL=hoge -e PASSWORD=hoge -e SLACK_TOKEN=hoge -itd slack-emoji-bot
