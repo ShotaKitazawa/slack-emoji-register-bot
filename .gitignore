@@ -102,3 +102,6 @@ venv.bak/
 
 # for mac
 .DS_Store
+
+# rtmbot
+rtmbot.*
