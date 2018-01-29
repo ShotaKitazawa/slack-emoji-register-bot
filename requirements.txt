@@ -4,3 +4,7 @@ beautifulsoup4
 robobrowser
 html5lib
 logzero
+rtmbot
+requests
+pyyaml
+websocket-client

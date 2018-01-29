@@ -28,7 +28,7 @@ def upload_emoji(session, emoji_name, filename):
                          % (emoji_name, crumb.text))
 
 
-class EmojiUploader(object):
+class SlackEmoji(object):
     def __init__(self, workspace, email, password):
         url = 'https://{}.slack.com/admin/emoji'.format(workspace)
 
@@ -45,11 +45,14 @@ class EmojiUploader(object):
     def upload(self, emoji_name, fname):
         upload_emoji(self.session, emoji_name, fname)
 
+    def delete(self, emoji_name):
+        raise NotImplementedError()
+
 
 if __name__ == '__main__':
     import os
     email = os.environ['EMAIL']
     password = os.environ['PASSWORD']
     workspace = os.environ['WORKSPACE']
-    uploader = EmojiUploader(workspace, email, password)
-    uploader.upload('aaatest', './tetris_purple.png')
+    slack_emoji = SlackEmoji(workspace, email, password)
+    slack_emoji.upload('aaatest', './tetris_purple.png')

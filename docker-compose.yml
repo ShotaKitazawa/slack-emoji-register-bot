@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  slack-emoji-bot:
+    build: .
+    image: slack-emoji-bot
+    environment:
+      - WORKSPACE
+      - EMAIL
+      - PASSWORD
+      - SLACK_TOKEN
+    restart: always
