@@ -4,7 +4,7 @@
 
 # 環境
 
-- Python 3.x
+- Python 3.6.1
 
 # 実行
 
