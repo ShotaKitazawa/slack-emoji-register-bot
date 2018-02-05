@@ -8,6 +8,7 @@ ACTIVE_PLUGINS:
     - src.plugins.FileUploadPlugin
     - src.plugins.URLUploadPlugin
     - src.plugins.SearchPlugin
+    - src.plugins.HelpDisplayPlugin
 _EOF_
     rtmbot
 else

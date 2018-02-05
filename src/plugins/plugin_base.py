@@ -18,6 +18,7 @@ class PluginBase(Plugin):
         super(PluginBase, self).__init__(*args, **kwargs)
         self.subcommands = subcommands
         self.bot_id = self.slack_client.api_call('auth.test')['user_id']
+        self.bot_name = self.slack_client.api_call('auth.test')['user']
 
     def process_message(self, data):
         def match(text):
