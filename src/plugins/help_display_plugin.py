@@ -3,7 +3,7 @@ from src.plugins.plugin_base import PluginBase
 HELP_MESSAGE = '''
 > `@{0} upload hoge`\n
 アップロードされたファイルを hoge という名前で emoji に登録します。\n
-ファイルアップロード時の [Upload a file?] の画面にて Add Comment に記述してください\n
+ファイルアップロード時の [Upload a file?] の画面にて Add Comment に記述してください。\n
 > `@{0} url http://example.com/hoge.jpg [fuga]`\n
 http://example.com/fuga.jpg にある画像データを hoge という名前、またはエイリアス指定がある場合 fuga という名前で emoji に登録します。\n
 > `@{0} search hoge [fuga]`\n
