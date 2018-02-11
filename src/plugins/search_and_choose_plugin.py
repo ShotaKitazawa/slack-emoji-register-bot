@@ -43,10 +43,10 @@ class SearchAndChoosePlugin(PluginBase):
         attachments = []
         actions = []
         for idx, path in enumerate(paths):
-            #self.slack_client.api_call("chat.postMessage", channel=channel, text=path)
             attachments.append({
                 "name": str(idx + 1),
                 "text": str(idx + 1),
+                "callback_id": "choose_picture",
                 "image_url": path
             })
             button = {
@@ -57,8 +57,11 @@ class SearchAndChoosePlugin(PluginBase):
             actions.append(button)
 
         attachments.append({
+            "name": "buttons",
             "text": "emoji に登録する画像を選んでください!",
+            "color": "#87CEEB",
+            "callback_id": "choose_picture",
             "actions": actions
         })
 
-        self.slack_client.api_call("chat.postMessage", channel=channel, callback_id="choose_picture", attachment_type="default", attachments=attachments)
+        self.slack_client.api_call("chat.postMessage", channel=channel, attachments=attachments)
