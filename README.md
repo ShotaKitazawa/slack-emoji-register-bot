@@ -103,7 +103,9 @@ Slack 上でメンションを送ることで各機能を使用可能です。
     - http://example.com/fuga.jpg にある画像データを hoge という名前、またはエイリアス指定がある場合 fuga という名前で emoji に登録します。
 - `@bot search hoge [fuga]`
     - Yahoo!検索(画像) にて hoge を検索し、検索結果の一番目を hoge という名前、またはエイリアス指定がある場合 fuga という名前で emoji に登録します。
-        - 検索文字列が日本語等のマルチバイト文字である場合、必ずエイリアス指定を併用してください。
+- `@{0} choose hoge [fuga] [NUMBER]`\n
+    - Yahoo!検索(画像) にて hoge を検索し、NUMBER の数 (デフォルト 3 つ) だけ検索結果とボタンを表示します。\n
+    - ユーザが押したボタンに対応する画像を hoge という名前、またはエイリアス指定がある場合 fuga という名前で emoji に登録します。\n
 - `@bot help`
     - Slack 上に help メッセージを表示します。
 

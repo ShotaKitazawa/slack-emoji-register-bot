@@ -1,5 +1,5 @@
 from src.plugins.plugin_base import PluginBase
-from src.utils import search_picture
+from src.utils import search_and_download_picture
 
 
 class SearchPlugin(PluginBase):
@@ -17,13 +17,13 @@ class SearchPlugin(PluginBase):
 
         searchname = text.split()[2]
 
-        if len(text.split()) == 4:
+        if len(text.split()) >= 4:
             emoji_name = text.split()[3]
         else:
             emoji_name = searchname
 
         try:
-            path = search_picture(searchname)
+            path = search_and_download_picture(searchname)
         except ValueError as e:
             self.outputs.append([channel, str(e)])
             return
