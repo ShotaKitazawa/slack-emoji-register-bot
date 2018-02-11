@@ -1,7 +1,6 @@
 from src.plugins.plugin_base import PluginBase
 from src.utils import search_pictures_url
 import time
-import unicodedata
 
 
 class SearchAndChoosePlugin(PluginBase):
@@ -27,7 +26,7 @@ class SearchAndChoosePlugin(PluginBase):
 
         if len(text.split()) >= 5:
             if text.split()[4].isdigit():
-                number_of_picture = unicodedata.digit(text.split()[4])
+                number_of_picture = int(text.split()[4])
                 if not number_of_picture > 0 or not number_of_picture <= 5:
                     self.outputs.append([channel, "Error for Invalid argument. Please refer to `@{} help`".format(self.bot_name)])
                     return
