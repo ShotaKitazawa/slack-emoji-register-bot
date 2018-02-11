@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  slack-emoji-bot:
+    build: .
+    image: slack-emoji-bot
+    environment:
+      - WORKSPACE
+      - EMAIL
+      - PASSWORD
+      - SLACK_TOKEN
+      - EXIST_HTTPS_SERVER: true
+    ports:
+      - "10080:10080"
+    restart: always

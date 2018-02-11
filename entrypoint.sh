@@ -8,9 +8,11 @@ ACTIVE_PLUGINS:
     - src.plugins.FileUploadPlugin
     - src.plugins.URLUploadPlugin
     - src.plugins.SearchPlugin
-    - src.plugins.SearchAndChoosePlugin
     - src.plugins.HelpDisplayPlugin
 _EOF_
+    if [ $EXIST_HTTPS_SERVER ]; then
+      echo "    - src.plugins.SearchAndChoosePlugin" >> rtmbot.conf
+    fi
     rtmbot
 else
     echo "env SLACK_TOKEN is not set. Exit."

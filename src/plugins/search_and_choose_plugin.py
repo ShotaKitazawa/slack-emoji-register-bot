@@ -8,6 +8,7 @@ class SearchAndChoosePlugin(PluginBase):
     def __init__(self, *args, **kwargs):
         subcommands = set(['choose'])
         super(SearchAndChoosePlugin, self).__init__(subcommands, *args, **kwargs)
+        # TODO: thread で 0.0.0.0:10080 に web サーバを建てる
 
     def process_filtered_massage(self, data):
         channel = data['channel']
