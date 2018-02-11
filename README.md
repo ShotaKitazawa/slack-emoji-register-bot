@@ -8,6 +8,8 @@
 
 # 実行
 
+# ローカル環境での実行
+
 環境変数を設定します。
 
 ```
@@ -33,6 +35,7 @@ ACTIVE_PLUGINS:
     - src.plugins.FileUploadPlugin
     - src.plugins.URLUploadPlugin
     - src.plugins.SearchPlugin
+    - src.plugins.HelpDisplayPlugin
 _EOF_
 ```
 
@@ -42,7 +45,16 @@ _EOF_
 rtmbot
 ```
 
-## Dockerfile からの実行
+## Dockerfile での実行
+
+環境変数を設定します。
+
+```
+export WORKSPACE=ワークスペース名
+export EMAIL=ワークスペースに所属するユーザのメールアドレス
+export PASSWORD=EMAILに対応するパスワード
+export SLACK_TOKEN=トークン
+```
 
 イメージを build します
 
@@ -57,6 +69,15 @@ docker run -e WORKSPACE=hoge -e EMAIL=hoge -e PASSWORD=hoge -e SLACK_TOKEN=hoge 
 ```
 
 ## Docker Compose での実行
+
+環境変数を設定します。
+
+```
+export WORKSPACE=ワークスペース名
+export EMAIL=ワークスペースに所属するユーザのメールアドレス
+export PASSWORD=EMAILに対応するパスワード
+export SLACK_TOKEN=トークン
+```
 
 イメージを build します。
 
@@ -74,13 +95,15 @@ docker-compose up -d
 
 Slack 上でメンションを送ることで各機能を使用可能です。
 
-- @bot upload hoge
-    - アップロードされたファイルを :hoge: という名前で emoji に登録します。
-        - ファイルアップロード時の [Upload a file?] の画面にて Add Comment に `@bot upload hoge` を入力
-        - zip ファイルにも対応
-- @bot url http://example.com/huga.jpg hoge
-    - http://example.com/huga.jpg にある画像データを :hoge: という名前で emoji に登録します。
-- @bot search hoge
-    - Yahoo!検索(画像) にて hoge を検索し、検索結果の一番目を :hoge: という名前で emoji に登録します。
-- @bot search hoge huga
-    - Yahoo!検索(画像) にて hoge を検索し、検索結果の一番目を :huga: という名前で emoji に登録します。
+- `@bot upload hoge`
+    - アップロードされたファイルを hoge という名前で emoji に登録します。
+        - ファイルアップロード時の [Upload a file?] の画面にて Add Comment に記述してください
+        - zip ファイルにも対応しています
+- `@bot url http://example.com/hoge.jpg [fuga]`
+    - http://example.com/fuga.jpg にある画像データを hoge という名前、またはエイリアス指定がある場合 fuga という名前で emoji に登録します。
+- `@bot search hoge [fuga]`
+    - Yahoo!検索(画像) にて hoge を検索し、検索結果の一番目を hoge という名前、またはエイリアス指定がある場合 fuga という名前で emoji に登録します。
+        - 検索文字列が日本語等のマルチバイト文字である場合、必ずエイリアス指定を併用してください。
+- `@bot help`
+    - Slack 上に help メッセージを表示します。
+
